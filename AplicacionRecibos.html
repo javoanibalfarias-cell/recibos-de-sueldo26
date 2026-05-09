@@ -190,8 +190,8 @@
     const descuentos = []; const noRem = [];
     const addD = (col, label, amount, pctCol) => { const n=num(amount); if(positive(n)) descuentos.push({codigo:col, concepto:label, porcentaje:pctCol?text(rowCell(ws,pctCol,r)):'', importe:n}); };
     const addN = (col, label, amount) => { const n=num(amount); if(positive(n)) noRem.push({codigo:col, concepto:label, importe:n}); };
-    addD('E','Jubilación',rowCell(ws,'E',r),'D'); addD('G','Ley 19032 / INSSJP',rowCell(ws,'G',r),'F'); addD('I','Obra social',rowCell(ws,'I',r),'H');
-    addD('K','Aporte sindical / retención 1',rowCell(ws,'K',r),'J'); addD('M','Retención 2',rowCell(ws,'M',r),'L'); addD('O','Retención 3',rowCell(ws,'O',r),'N');
+    addD('E','Jubilación',rowCell(ws,'E',r),'D'); addD('G','Ley 19032 / INSSJP',rowCell(ws,'G',r),'F'); addD('I','Obra social media jornada',rowCell(ws,'I',r),'H');
+    addD('M','Retención 2',rowCell(ws,'M',r),'L'); addD('O','Retención 3',rowCell(ws,'O',r),'N');
     addD('Q','Retención 4',rowCell(ws,'Q',r),'P'); addD('S','Seguro / FAECYS',rowCell(ws,'S',r),'R'); addD('U','Retención 5',rowCell(ws,'U',r),'T'); addD('W','Retención 6',rowCell(ws,'W',r),'V'); addD('Y','Retención 7',rowCell(ws,'Y',r),'X');
     addD('Z','Anticipos',rowCell(ws,'Z',r)); addD('AA','Anticipo SAC',rowCell(ws,'AA',r)); addD('AB','Obra Social Acuerdos',rowCell(ws,'AB',r));
     ['AD','AE','AF','AG','AH','AI','AJ','AK'].forEach(c=>addN(c,getHeaderFromRow(ws,c,6,c),rowCell(ws,c,r)));

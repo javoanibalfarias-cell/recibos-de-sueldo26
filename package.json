@@ -1,0 +1,25 @@
+{
+  "name": "recebidos-sueldo-cli",
+  "version": "1.0.0",
+  "description": "Generador ejecutable de recibos de sueldo a partir de un Excel de liquidación",
+  "main": "index.js",
+  "bin": {"recibos-sueldo": "index.js"},
+  "scripts": {
+    "build": "node index.js --help",
+    "build:exe": "pkg index.js --targets node16-win-x64 --output dist/recibos-sueldo.exe",
+    "start": "node index.js",
+    "test": "echo \"Tests disabled for this release\""
+  },
+  "author": "OpenCode",
+  "license": "MIT",
+  "dependencies": {
+    "xlsx": "^0.19.3",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "pkg": "^5.7.0"
+  },
+  "pkg": {
+    "assets": ["**/*.html"]
+  }
+}

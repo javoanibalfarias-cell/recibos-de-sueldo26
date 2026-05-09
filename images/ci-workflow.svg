@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+  <rect width="100%" height="100%" fill="#f7fbff"/>
+  <g id="arrow" transform="translate(40,120)">
+    <rect width="240" height="80" rx="8" ry="8" fill="#eaf1ff" stroke="#cbd6ee"/>
+    <text x="120" y="50" text-anchor="middle" font-family="Arial" font-size="20" fill="#2f4a90">CI Workflow</text>
+  </g>
+  <polyline points="320,140 400,140 440,90" fill="none" stroke="#2f80ed" stroke-width="6" marker-end="url(#arrow)"/>
+</svg>

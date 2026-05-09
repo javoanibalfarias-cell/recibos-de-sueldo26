@@ -4,14 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Generador de Recibos de Sueldo</title>
+  <link rel="icon" type="image/jpeg" href="images/LOGO.jpg">
+  <link rel="shortcut icon" href="images/LOGO.jpg">
   <script src="assets/xlsx.full.min.js"></script>
   <style>
     :root { --azul:#102a43; --celeste:#2f80ed; --borde:#d8dee9; --fondo:#f5f7fb; --texto:#17202a; --gris:#667085; --ok:#087443; --warn:#9a3412; }
     * { box-sizing: border-box; }
     body { margin:0; font-family: "Segoe UI", Arial, sans-serif; background:var(--fondo); color:var(--texto); }
-    header { background:linear-gradient(135deg, var(--azul), #1b4f72); color:#fff; padding:24px 32px; box-shadow:0 2px 8px rgba(0,0,0,.15); }
+    header { display:flex; align-items:center; gap:18px; flex-wrap:wrap; background:linear-gradient(135deg, var(--azul), #1b4f72); color:#fff; padding:24px 32px; box-shadow:0 2px 8px rgba(0,0,0,.15); }
     header h1 { margin:0 0 8px; font-size:26px; letter-spacing:.2px; }
     header p { margin:0; opacity:.92; max-width:980px; }
+    header img.app-logo { height:60px; width:auto; border-radius:12px; }
     main { padding:24px 32px 48px; display:grid; gap:18px; }
     .card { background:#fff; border:1px solid var(--borde); border-radius:14px; box-shadow:0 6px 18px rgba(16,42,67,.08); padding:18px; }
     .grid { display:grid; grid-template-columns: 360px 1fr; gap:18px; align-items:start; }
@@ -62,8 +65,11 @@
 </head>
 <body>
   <header>
-    <h1>Generador de Recibos de Sueldo</h1>
-    <p>Aplicación local para leer el archivo Excel de liquidación, tomar automáticamente los parámetros de empleador, empleados, remuneraciones y retenciones, y generar recibos imprimibles.</p>
+    <img src="images/LOGO.jpg" alt="Logo" class="app-logo">
+    <div>
+      <h1>Generador de Recibos de Sueldo</h1>
+      <p>Aplicación local para leer el archivo Excel de liquidación, tomar automáticamente los parámetros de empleador, empleados, remuneraciones y retenciones, y generar recibos imprimibles.</p>
+    </div>
   </header>
   <main>
     <section class="grid">

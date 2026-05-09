@@ -179,7 +179,7 @@
     const add = (col, label, importe, qtyCol) => { const amount = num(importe); if(positive(amount)) conceptos.push({codigo:col, concepto:label, cantidad: qtyCol ? text(rowCell(ws, qtyCol, r)) : '', importe: amount}); };
     const sueldoBasico = num(rowCell(ws,'E',r));
     add('E','Sueldo básico / sueldo exacto',rowCell(ws,'E',r));
-    add('G','Básico días normales',rowCell(ws,'G',r),'F'); add('I','Ausentismo',rowCell(ws,'I',r),'H'); add('K','Días trabajados / ajuste',rowCell(ws,'K',r),'J');
+    add('G','Básico días normales',rowCell(ws,'G',r),'F'); if(sueldoBasico > 0) add('I','Ausentismo', sueldoBasico * 0.15, 'H'); add('K','Días trabajados / ajuste',rowCell(ws,'K',r),'J');
     add('M','Presentismo',rowCell(ws,'M',r),'L');
     if(sueldoBasico > 0) add('O','Antigüedad', sueldoBasico * 0.10, 'N');
     add('Q','Adicional remunerativo',rowCell(ws,'Q',r),'P');

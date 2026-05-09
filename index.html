@@ -4,14 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Generador de Recibos de Sueldo</title>
+  <link rel="icon" type="image/jpeg" href="images/LOGO.jpg">
+  <link rel="shortcut icon" href="images/LOGO.jpg">
   <script src="assets/xlsx.full.min.js"></script>
   <style>
     :root { --azul:#102a43; --celeste:#2f80ed; --borde:#d8dee9; --fondo:#f5f7fb; --texto:#17202a; --gris:#667085; --ok:#087443; --warn:#9a3412; }
     * { box-sizing: border-box; }
     body { margin:0; font-family: "Segoe UI", Arial, sans-serif; background:var(--fondo); color:var(--texto); }
-    header { background:linear-gradient(135deg, var(--azul), #1b4f72); color:#fff; padding:24px 32px; box-shadow:0 2px 8px rgba(0,0,0,.15); }
+    header { display:flex; align-items:center; gap:18px; flex-wrap:wrap; background:linear-gradient(135deg, var(--azul), #1b4f72); color:#fff; padding:24px 32px; box-shadow:0 2px 8px rgba(0,0,0,.15); }
     header h1 { margin:0 0 8px; font-size:26px; letter-spacing:.2px; }
     header p { margin:0; opacity:.92; max-width:980px; }
+    header img.app-logo { height:60px; width:auto; border-radius:12px; }
     main { padding:24px 32px 48px; display:grid; gap:18px; }
     .card { background:#fff; border:1px solid var(--borde); border-radius:14px; box-shadow:0 6px 18px rgba(16,42,67,.08); padding:18px; }
     .grid { display:grid; grid-template-columns: 360px 1fr; gap:18px; align-items:start; }
@@ -62,8 +65,11 @@
 </head>
 <body>
   <header>
-    <h1>Generador de Recibos de Sueldo</h1>
-    <p>Aplicación local para leer el archivo Excel de liquidación, tomar automáticamente los parámetros de empleador, empleados, remuneraciones y retenciones, y generar recibos imprimibles.</p>
+    <img src="images/LOGO.jpg" alt="Logo" class="app-logo">
+    <div>
+      <h1>Generador de Recibos de Sueldo</h1>
+      <p>Aplicación local para leer el archivo Excel de liquidación, tomar automáticamente los parámetros de empleador, empleados, remuneraciones y retenciones, y generar recibos imprimibles.</p>
+    </div>
   </header>
   <main>
     <section class="grid">
@@ -111,7 +117,7 @@
   const app = { wb:null, empleador:null, empleados:[], periodo:'Abril 2012' };
   const $ = id => document.getElementById(id);
   const fmt = n => new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS'}).format(Number(n||0));
-  const num = v => { if(v == null || v === '' || String(v).startsWith('#')) return 0; if(typeof v === 'number') return v; const s=String(v).replace(/\./g,'').replace(',','.').replace(/[^0-9.-]/g,''); const x=parseFloat(s); return isNaN(x)?0:x; };
+  const num = v => { if(v == null || v === '' || String(v).startsWith('#')) return 0; if(typeof v === 'number') return v; const s=String(v).replace(/\./g,'').replace(',','.').replace(/[^0-9.-]/g,''); return parseFloat(s) || 0; };
   const text = v => v == null ? '' : String(v).trim();
   const cell = (ws, addr) => ws && ws[addr] ? ws[addr].v : '';
   const rowCell = (ws, col, row) => cell(ws, col + row);
@@ -170,15 +176,15 @@
   }
   function readRemuneraciones(ws, r){
     const conceptos = [];
-    const add = (col, label, importe, qtyCol) => { const amount = num(importe); if(positive(amount)) conceptos.push({codigo:col, concepto:label, cantidad: qtyCol ? text(rowCell(ws, qtyCol, r)) : '', importe: amount}); };
+    const add = (col, label, importe, qtyCol) => { const amount = num(importe); if(positive(amount)) conceptos.push({codigo:col, concepto:label, cantidad: qtyCol ? text(rowCell(ws, qtyCol, r)) : '', importe:amount}); };
     add('E','Sueldo básico / sueldo exacto',rowCell(ws,'E',r));
     add('G','Básico días normales',rowCell(ws,'G',r),'F'); add('I','Ausentismo',rowCell(ws,'I',r),'H'); add('K','Días trabajados / ajuste',rowCell(ws,'K',r),'J');
     add('M','Presentismo',rowCell(ws,'M',r),'L'); add('O','Antigüedad',rowCell(ws,'O',r),'N'); add('Q','Adicional remunerativo',rowCell(ws,'Q',r),'P');
     add('S','Adicional fijo / porcentaje',rowCell(ws,'S',r),'R'); add('U','Falla de caja',rowCell(ws,'U',r),'T'); add('W','Adicional remunerativo 2',rowCell(ws,'W',r),'V'); add('Y','Adicional remunerativo 3',rowCell(ws,'Y',r),'X');
     ['Z','AA','AB','AC','AD','AE'].forEach(c=>add(c,getHeaderLabel(ws,c,c),rowCell(ws,c,r)));
-    add('AH','Horas extras 50%',rowCell(ws,'AH',r),'AF'); add('AK','Horas extras 100%',rowCell(ws,'AK',r),'AI'); add('AL','SAC proporcional',rowCell(ws,'AL',r)); add('AN','Vacaciones',rowCell(ws,'AN',r),'AM');
+    add('AH','Horas extras 50%',rowCell(ws,'AH',r),'AF'); add('AK','Horas extras 100%',rowCell(ws,'AK',r),'AI'); add('AL','SAC proporcional',rowCell(ws,'AL',r)); add('AN','Vacaciones',rowCell(ws,'AN',r));
     const brutoCached = num(rowCell(ws,'AP',r));
-    return { remunerativos: conceptos.filter(c=>c.codigo!=='Z'&&c.codigo!=='AA'&&c.codigo!=='AB'&&c.codigo!=='AC'&&c.codigo!=='AD'&&c.codigo!=='AE'), noRemunerativos: conceptos.filter(c=>['Z','AA','AB','AC','AD','AE'].includes(c.codigo)), brutoCached };
+    return { remunerativos: conceptos.filter(c=>c.codigo!=='Z'&&c.codigo!=='AA'&&c.codigo!=='AB'&&c.codigo!=='AC'&&c.codigo!=='AD'&&c.codigo!=='AE'), noRemunerativos: conceptos.filter(c=>['Z','AA','AB','AC','AD','AE'].includes(c.codigo)) };
   }
   function readRetenciones(ws, r){
     const descuentos = []; const noRem = [];
@@ -186,7 +192,7 @@
     const addN = (col, label, amount) => { const n=num(amount); if(positive(n)) noRem.push({codigo:col, concepto:label, importe:n}); };
     addD('E','Jubilación',rowCell(ws,'E',r),'D'); addD('G','Ley 19032 / INSSJP',rowCell(ws,'G',r),'F'); addD('I','Obra social',rowCell(ws,'I',r),'H');
     addD('K','Aporte sindical / retención 1',rowCell(ws,'K',r),'J'); addD('M','Retención 2',rowCell(ws,'M',r),'L'); addD('O','Retención 3',rowCell(ws,'O',r),'N');
-    addD('Q','Retención 4',rowCell(ws,'Q',r),'P'); addD('S','Seguro / FAECYS',rowCell(ws,'S',r),'R'); addD('U','Retención 5',rowCell(ws,'U',r),'T'); addD('W','Retención 6',rowCell(ws,'W',r),'V'); addD('Y','Retención 7',rowCell(ws,'Y',r),'X');
+    addD('Q','Retención 4',rowCell(ws,'Q',r),'P'); addD('S','Seguro / FAECYS',rowCell(ws,'S',r),'R'); addD('U','Retención 5',rowCell(ws,'U',r),'T'); addD('W','Retención 6',rowCell(ws,'W',r),'V');
     addD('Z','Anticipos',rowCell(ws,'Z',r)); addD('AA','Anticipo SAC',rowCell(ws,'AA',r)); addD('AB','Obra Social Acuerdos',rowCell(ws,'AB',r));
     ['AD','AE','AF','AG','AH','AI','AJ','AK'].forEach(c=>addN(c,getHeaderFromRow(ws,c,6,c),rowCell(ws,c,r)));
     const subtotal = num(rowCell(ws,'AC',r)); const netoExacto = num(rowCell(ws,'AN',r)); const neto = num(rowCell(ws,'AO',r)) || netoExacto;
@@ -199,31 +205,33 @@
     $('mBruto').textContent = fmt(app.empleados.reduce((a,e)=>a+e.bruto,0));
     $('mDesc').textContent = fmt(app.empleados.reduce((a,e)=>a+e.totalDescuentos,0));
     $('mNeto').textContent = fmt(app.empleados.reduce((a,e)=>a+e.neto,0));
-    $('empleadorBox').innerHTML = `<strong>${escapeHtml(app.empleador.razonSocial||'Sin razón social')}</strong><br>CUIT: ${escapeHtml(app.empleador.cuit)}<br>${escapeHtml(app.empleador.domicilio)} - ${escapeHtml(app.empleador.localidad)} (${escapeHtml(app.empleador.provincia)})<br>Domicilio de pago: ${escapeHtml(app.empleador.pago)}`;
+    $('empleadorBox').innerHTML = `<strong>${escapeHtml(app.empleador.razonSocial||'Sin razón social')}</strong><br>CUIT: ${escapeHtml(app.empleador.cuit)}<br>${escapeHtml(app.empleador.domicilio)}<br>${escapeHtml(app.empleador.localidad)}, ${escapeHtml(app.empleador.provincia)}`;
     const sel=$('selectorEmpleado'); sel.innerHTML=''; app.empleados.forEach((e,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=`${e.legajo} - ${e.nombre}`; sel.appendChild(o); });
     sel.disabled = app.empleados.length===0; ['btnPreview','btnPrintSelected','btnPrintAll','btnExportCsv'].forEach(id=>$(id).disabled=app.empleados.length===0);
     const tb=$('tablaNomina').querySelector('tbody'); tb.innerHTML='';
-    app.empleados.forEach(e=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${escapeHtml(e.legajo)}</td><td>${escapeHtml(e.nombre)}</td><td>${escapeHtml(e.cuil)}</td><td>${fmt(e.bruto)}</td><td>${fmt(e.totalDescuentos)}</td><td>${fmt(e.totalNoRem)}</td><td><strong>${fmt(e.neto)}</strong></td>`; tb.appendChild(tr); });
+    app.empleados.forEach(e=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${escapeHtml(e.legajo)}</td><td>${escapeHtml(e.nombre)}</td><td>${escapeHtml(e.cuil)}</td><td>${fmt(e.bruto)}</td><td>${fmt(e.totalDescuentos)}</td><td>${fmt(e.totalNoRem)}</td><td>${fmt(e.neto)}</td>`; tb.appendChild(tr); });
     if(app.empleados[0]) renderReceipt(app.empleados[0]);
     status(`Excel cargado correctamente. Se detectaron ${app.empleados.length} empleados con datos para generar recibos.`, 'ok');
   }
   function renderReceipt(e){ $('printArea').innerHTML = buildReceipt(e); }
   function buildReceipt(e){
     const allHaberes = [...e.remunerativos.map(x=>({...x,tipo:'Remunerativo'})), ...e.noRemunerativos.map(x=>({...x,tipo:'No remunerativo'}))];
-    const habRows = allHaberes.length ? allHaberes.map(c=>`<tr><td>${escapeHtml(c.concepto)}</td><td>${escapeHtml(c.cantidad||'')}</td><td>${escapeHtml(c.tipo)}</td><td class="num">${fmt(c.importe)}</td></tr>`).join('') : '<tr><td colspan="4">Sin haberes detectados</td></tr>';
-    const descRows = e.descuentos.length ? e.descuentos.map(c=>`<tr><td>${escapeHtml(c.concepto)}</td><td>${escapeHtml(c.porcentaje||'')}</td><td class="num">${fmt(c.importe)}</td></tr>`).join('') : '<tr><td colspan="3">Sin descuentos detectados</td></tr>';
+    const habRows = allHaberes.length ? allHaberes.map(c=>`<tr><td>${escapeHtml(c.concepto)}</td><td>${escapeHtml(c.cantidad||'')}</td><td>${escapeHtml(c.tipo)}</td><td class="num">${fmt(c.importe)}</td></tr>`).join('') : '<tr><td colspan="4" class="muted">Sin datos</td></tr>';
+    const descRows = e.descuentos.length ? e.descuentos.map(c=>`<tr><td>${escapeHtml(c.concepto)}</td><td>${escapeHtml(c.porcentaje||'')}</td><td class="num">${fmt(c.importe)}</td></tr>`).join('') : '<tr><td colspan="3" class="muted">Sin descuentos</td></tr>';
     return `<article class="receipt">
       <h2>Recibo de haberes</h2>
       <div class="top">
-        <div class="box"><strong>Empleador:</strong> ${escapeHtml(app.empleador.razonSocial)}<br><strong>CUIT:</strong> ${escapeHtml(app.empleador.cuit)}<br><strong>Domicilio:</strong> ${escapeHtml(app.empleador.domicilio)}, ${escapeHtml(app.empleador.localidad)}, ${escapeHtml(app.empleador.provincia)}</div>
-        <div class="box"><strong>Período:</strong> ${escapeHtml($('periodo').value||app.periodo)}<br><strong>Lugar de pago:</strong> ${escapeHtml(app.empleador.pago)}<br><strong>Fecha emisión:</strong> ${new Date().toLocaleDateString('es-AR')}</div>
+        <div class="box"><strong>Empleador:</strong> ${escapeHtml(app.empleador.razonSocial)}<br><strong>CUIT:</strong> ${escapeHtml(app.empleador.cuit)}<br><strong>Domicilio:</strong> ${escapeHtml(app.empleador.domicilio)}<br><strong>${escapeHtml(app.empleador.localidad)}, ${escapeHtml(app.empleador.provincia)}</strong></div>
+        <div class="box"><strong>Período:</strong> ${escapeHtml($('periodo').value||app.periodo)}<br><strong>Lugar de pago:</strong> ${escapeHtml(app.empleador.pago)}<br><strong>Fecha emisión:</strong> ${formatDate(new Date())}</div>
       </div>
       <div class="top">
         <div class="box"><strong>Empleado:</strong> ${escapeHtml(e.nombre)}<br><strong>CUIL:</strong> ${escapeHtml(e.cuil)}<br><strong>Legajo:</strong> ${escapeHtml(e.legajo)}<br><strong>Ingreso:</strong> ${formatDate(e.ingreso)}</div>
-        <div class="box"><strong>Categoría/Tarea:</strong> ${escapeHtml(e.tarea)}<br><strong>Calificación:</strong> ${escapeHtml(e.calificacion)}<br><strong>AFJP/SIPA:</strong> ${escapeHtml(e.afjp)}<br><strong>Cuenta:</strong> ${escapeHtml(e.cuenta)}</div>
+        <div class="box"><strong>Categoría/Tarea:</strong> ${escapeHtml(e.tarea)}<br><strong>Calificación:</strong> ${escapeHtml(e.calificacion)}<br><strong>AFJP/SIPA:</strong> ${escapeHtml(e.afjp)}<br><strong>Banco:</strong> ${escapeHtml(e.cuenta)}</div>
       </div>
-      <table><thead><tr><th>Haberes</th><th>Cant./Base</th><th>Tipo</th><th>Importe</th></tr></thead><tbody>${habRows}</tbody><tfoot><tr class="total-row"><td colspan="3">Total haberes remunerativos</td><td class="num">${fmt(e.bruto)}</td></tr><tr class="total-row"><td colspan="3">Total no remunerativo</td><td class="num">${fmt(e.totalNoRem)}</td></tr></tfoot></table>
-      <table><thead><tr><th>Descuentos</th><th>%</th><th>Importe</th></tr></thead><tbody>${descRows}</tbody><tfoot><tr class="total-row"><td colspan="2">Total descuentos</td><td class="num">${fmt(e.totalDescuentos)}</td></tr><tr class="total-row"><td colspan="2">Neto a cobrar</td><td class="num">${fmt(e.neto)}</td></tr></tfoot></table>
+      <table><thead><tr><th>Haberes</th><th>Cant./Base</th><th>Tipo</th><th>Importe</th></tr></thead><tbody>${habRows}</tbody><tfoot><tr class="total-row"><td colspan="3">Total haberes remunerativos</td><td class="num">${fmt(e.bruto)}</td></tr><tr class="total-row"><td colspan="3">No remunerativos</td><td class="num">${fmt(e.totalNoRem)}</td></tr></tfoot></table>
+      <table><thead><tr><th>Descuentos</th><th>%</th><th>Importe</th></tr></thead><tbody>${descRows}</tbody><tfoot><tr class="total-row"><td colspan="2">Total descuentos</td><td class="num">${fmt(e.totalDescuentos)}</td></tr></tfoot></table>
+      <div class="top" style="margin-top:20px;"><div class="box"><strong>Neto a pagar:</strong> <span style="font-size:18px;font-weight:bold;">${fmt(e.neto)}</span></div></div>
+      <div class="signatures"><div><div class="line">Firma Empleador</div></div><div><div class="line">Firma Empleado</div></div></div>
     </article>`;
   }
   function printHtml(html){ $('printArea').innerHTML = html; window.setTimeout(()=>window.print(),150); }
@@ -234,7 +242,7 @@
   }
   function formatDate(v){ if(!v) return ''; try { const d = v instanceof Date ? v : new Date(v); return isNaN(d) ? text(v) : d.toLocaleDateString('es-AR'); } catch { return text(v); } }
   function escapeHtml(s){ return text(s).replace(/[&<>'"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
-  $('excelFile').addEventListener('change', ev=>{ const f=ev.target.files[0]; if(!f) return; status('Leyendo Excel...'); const reader=new FileReader(); reader.onload=e=>{ try{ readWorkbook(e.target.result); }catch(err){ console.error(err); status('Error al leer el Excel: '+err.message, 'error'); } }; reader.readAsArrayBuffer(f); });
+  $('excelFile').addEventListener('change', ev=>{ const f=ev.target.files[0]; if(!f) return; status('Leyendo Excel...'); const reader=new FileReader(); reader.onload=e=>{ try{ readWorkbook(e.target.result); }catch(err){ status('Error: '+err.message,'error'); } }; reader.readAsArrayBuffer(f); });
   $('periodo').addEventListener('input',()=>{ const idx=$('selectorEmpleado').value; if(app.empleados[idx]) renderReceipt(app.empleados[idx]); });
   $('selectorEmpleado').addEventListener('change',()=>{ const e=app.empleados[$('selectorEmpleado').value]; if(e) renderReceipt(e); });
   $('btnPreview').addEventListener('click',()=>{ const e=app.empleados[$('selectorEmpleado').value]; if(e) renderReceipt(e); });

@@ -176,14 +176,20 @@
   }
   function readRemuneraciones(ws, r){
     const conceptos = [];
-    const add = (col, label, importe, qtyCol, pct) => { const amount = num(importe); if(positive(amount)) conceptos.push({codigo:col, concepto:label, cantidad: qtyCol ? text(rowCell(ws, qtyCol, r)) : (pct||''), importe: amount}); };
+    const formatQty = value => {
+      if(value == null || value === '') return '';
+      const s = String(value).trim();
+      return /^[A-Z]+$/.test(s) ? text(rowCell(ws, s, r)) : s;
+    };
+    const add = (col, label, importe, qty) => {
+      const amount = num(importe);
+      if(positive(amount)) conceptos.push({codigo:col, concepto:label, cantidad: formatQty(qty), importe: Math.round(amount)});
+    };
     const sueldoBasico = num(rowCell(ws,'E',r));
     add('E','Sueldo básico / sueldo exacto',rowCell(ws,'E',r));
-    add('G','Básico días normales',rowCell(ws,'G',r),'F'); if(sueldoBasico > 0) add('I','Ausentismo', sueldoBasico * 0.15, '15%'); add('K','Días trabajados / ajuste',rowCell(ws,'K',r),'J');
-    add('M','Presentismo',rowCell(ws,'M',r),'L');
-    if(sueldoBasico > 0) add('O','Antigüedad', sueldoBasico * 0.10, '10%');
-    add('Q','Adicional remunerativo',rowCell(ws,'Q',r),'P');
-    if(sueldoBasico > 0) add('S','Adicional fijo / porcentaje', sueldoBasico * 0.10, '10%');
+    add('G','Básico días normales',rowCell(ws,'G',r),'F'); if(sueldoBasico > 0) add('I','Ausentismo', sueldoBasico * 0.15, 15); add('K','Días trabajados / ajuste',rowCell(ws,'K',r),'J');
+    add('M','Presentismo',rowCell(ws,'M',r),'L'); if(sueldoBasico > 0) add('O','Antigüedad', sueldoBasico * 0.10, 10);
+    add('Q','Adicional remunerativo',rowCell(ws,'Q',r),'P'); if(sueldoBasico > 0) add('S','Adicional fijo / porcentaje', sueldoBasico * 0.10, 10);
     add('U','Falla de caja',rowCell(ws,'U',r),'T'); add('W','Adicional remunerativo 2',rowCell(ws,'W',r),'V'); add('Y','Adicional remunerativo 3',rowCell(ws,'Y',r),'X');
     ['Z','AA','AB','AC','AD','AE'].forEach(c=>add(c,getHeaderLabel(ws,c,c),rowCell(ws,c,r)));
     add('AH','Horas extras 50%',rowCell(ws,'AH',r),'AF'); add('AK','Horas extras 100%',rowCell(ws,'AK',r),'AI'); add('AL','SAC proporcional',rowCell(ws,'AL',r)); add('AN','Vacaciones',rowCell(ws,'AN',r),'AM');
@@ -192,7 +198,12 @@
   }
   function readRetenciones(ws, r){
     const descuentos = []; const noRem = [];
-    const addD = (col, label, amount, pctCol, pct) => { const n=num(amount); if(positive(n)) descuentos.push({codigo:col, concepto:label, porcentaje:pctCol?text(rowCell(ws,pctCol,r)):(pct||''), importe:n}); };
+    const formatPct = value => {
+      if(value == null || value === '') return '';
+      const s = String(value).trim();
+      return /^[A-Z]+$/.test(s) ? text(rowCell(ws, s, r)) : s;
+    };
+    const addD = (col, label, amount, pct) => { const n=num(amount); if(positive(n)) descuentos.push({codigo:col, concepto:label, porcentaje: formatPct(pct), importe:n}); };
     const addN = (col, label, amount) => { const n=num(amount); if(positive(n)) noRem.push({codigo:col, concepto:label, importe:n}); };
     const brutoRow = num(rowCell(ws,'AP',r-1)) || 0;
     const bruto = brutoRow > 0 ? brutoRow : num(rowCell(ws,'AP',r));

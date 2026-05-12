@@ -238,7 +238,7 @@
     const habRows = allHaberes.length ? allHaberes.map(c=>`<tr><td>${escapeHtml(c.concepto)}</td><td>${escapeHtml(c.cantidad||'')}</td><td>${escapeHtml(c.tipo)}</td><td class="num">${fmt(c.importe)}</td></tr>`).join('') : '<tr><td colspan="4">Sin haberes detectados</td></tr>';
     const descRows = e.descuentos.length ? e.descuentos.map(c=>`<tr><td>${escapeHtml(c.concepto)}</td><td>${escapeHtml(c.porcentaje||'')}</td><td class="num">${fmt(c.importe)}</td></tr>`).join('') : '<tr><td colspan="3">Sin descuentos detectados</td></tr>';
     return `<article class="receipt">
-      <h2>Recibo de haberes</h2>
+      <h2>RECIBO DE HABERES</h2>
       <div class="top">
         <div class="box"><strong>Empleador:</strong> ${escapeHtml(app.empleador.razonSocial)}<br><strong>CUIT:</strong> ${escapeHtml(app.empleador.cuit)}<br><strong>Domicilio:</strong> ${escapeHtml(app.empleador.domicilio)}, ${escapeHtml(app.empleador.localidad)}, ${escapeHtml(app.empleador.provincia)}</div>
         <div class="box"><strong>Período:</strong> ${escapeHtml($('periodo').value||app.periodo)}<br><strong>Lugar de pago:</strong> ${escapeHtml(app.empleador.pago)}<br><strong>Fecha emisión:</strong> ${new Date().toLocaleDateString('es-AR')}</div>
@@ -247,8 +247,8 @@
         <div class="box"><strong>Empleado:</strong> ${escapeHtml(e.nombre)}<br><strong>CUIL:</strong> ${escapeHtml(e.cuil)}<br><strong>Legajo:</strong> ${escapeHtml(e.legajo)}<br><strong>Ingreso:</strong> ${formatDate(e.ingreso)}</div>
         <div class="box"><strong>Categoría/Tarea:</strong> ${escapeHtml(e.tarea)}<br><strong>Calificación:</strong> ${escapeHtml(e.calificacion)}<br><strong>AFJP/SIPA:</strong> ${escapeHtml(e.afjp)}<br><strong>Cuenta:</strong> ${escapeHtml(e.cuenta)}</div>
       </div>
-      <table><thead><tr><th>Haberes</th><th>Cant./Base</th><th>Tipo</th><th>Importe</th></tr></thead><tbody>${habRows}</tbody><tfoot><tr class="total-row"><td colspan="3">Total haberes remunerativos</td><td class="num">${fmt(e.bruto)}</td></tr><tr class="total-row"><td colspan="3">Total no remunerativo</td><td class="num">${fmt(e.totalNoRem)}</td></tr></tfoot></table>
-      <table><thead><tr><th>Descuentos</th><th>%</th><th>Importe</th></tr></thead><tbody>${descRows}</tbody><tfoot><tr class="total-row"><td colspan="2">Total descuentos</td><td class="num">${fmt(e.totalDescuentos)}</td></tr><tr class="total-row"><td colspan="2">Neto a cobrar</td><td class="num">${fmt(e.neto)}</td></tr></tfoot></table>
+      <table><thead><tr><th>Haberes</th><th>Cant./Base</th><th>Tipo</th><th>Importe</th></tr></thead><tbody>${habRows}</tbody><tfoot><tr class="total-row"><td colspan="3">Total haberes remunerativos</td><td class="num">${fmt(e.bruto)}</td></tr><tr class="total-row"><td colspan="3">No remunerativos</td><td class="num">${fmt(e.totalNoRem)}</td></tr></tfoot></table>
+      <table><thead><tr><th>Descuentos</th><th>%</th><th>Importe</th></tr></thead><tbody>${descRows}</tbody><tfoot><tr class="total-row"><td colspan="2">Total descuentos</td><td class="num">${fmt(e.totalDescuentos)}</td></tr><tr class="total-row"><td colspan="2">Neto a pagar</td><td class="num">${fmt(e.neto)}</td></tr></tfoot></table>
     </article>`;
   }
   function printHtml(html){ $('printArea').innerHTML = html; window.setTimeout(()=>window.print(),150); }

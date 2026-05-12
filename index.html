@@ -147,7 +147,8 @@
     const retByLeg = {}; const retLast = maxRow(retWS);
     for(let r=7; r<=retLast; r++){
       const leg = text(rowCell(retWS,'B',r)); if(!leg) continue;
-      retByLeg[leg] = readRetenciones(retWS, r);
+      const brutoRow = num(rowCell(retWS,'AP',r-1)) || num(rowCell(retWS,'AP',r)) || 0;
+      retByLeg[leg] = readRetenciones(retWS, r, brutoRow);
     }
     const remByLeg = {}; const remLast = maxRow(remWS);
     for(let r=8; r<=remLast; r++){
@@ -160,8 +161,9 @@
       const leg = text(rowCell(empleadosWS,'C',r)); const nombre = text(rowCell(empleadosWS,'E',r));
       if(!leg || !nombre) continue;
       const remuneracion = remByLeg[leg] || readRemuneraciones(remWS, r);
-      const retencion = retByLeg[leg] || readRetenciones(retWS, r-1);
-      const bruto = Math.round(remuneracion.remunerativos.reduce((a,c)=>a+c.importe,0));
+      const brutoCached = remuneracion.brutoCached || 0;
+      const retencion = retByLeg[leg] || readRetenciones(retWS, r-1, brutoCached);
+      const bruto = brutoCached > 0 ? brutoCached : Math.round(remuneracion.remunerativos.reduce((a,c)=>a+c.importe,0));
       const noRem = Math.round(remuneracion.noRemunerativos.reduce((a,c)=>a+c.importe,0) + retencion.noRemunerativos.reduce((a,c)=>a+c.importe,0));
       const desc = Math.round(retencion.descuentos.reduce((a,c)=>a+c.importe,0));
       const neto = retencion.neto || Math.round(bruto + noRem - desc);
@@ -184,9 +186,9 @@
     ['Z','AA','AB','AC','AD','AE'].forEach(c=>add(c,getHeaderLabel(ws,c,c),rowCell(ws,c,r)));
     add('AH','Horas extras 50%',rowCell(ws,'AH',r),'AF'); add('AK','Horas extras 100%',rowCell(ws,'AK',r),'AI'); add('AL','SAC proporcional',rowCell(ws,'AL',r)); add('AN','Vacaciones',rowCell(ws,'AN',r));
     const brutoCached = num(rowCell(ws,'AP',r));
-    return { remunerativos: conceptos.filter(c=>c.codigo!=='Z'&&c.codigo!=='AA'&&c.codigo!=='AB'&&c.codigo!=='AC'&&c.codigo!=='AD'&&c.codigo!=='AE'), noRemunerativos: conceptos.filter(c=>['Z','AA','AB','AC','AD','AE'].includes(c.codigo)) };
+    return { remunerativos: conceptos.filter(c=>c.codigo!=='Z'&&c.codigo!=='AA'&&c.codigo!=='AB'&&c.codigo!=='AC'&&c.codigo!=='AD'&&c.codigo!=='AE'), noRemunerativos: conceptos.filter(c=>['Z','AA','AB','AC','AD','AE'].includes(c.codigo)), brutoCached };
   }
-  function readRetenciones(ws, r){
+  function readRetenciones(ws, r, brutoCached){
     const descuentos = []; const noRem = [];
     const formatPct = value => {
       if(value == null || value === '') return '';
@@ -195,11 +197,11 @@
     };
     const addD = (col, label, amount, pct) => { const n=num(amount); if(positive(n)) descuentos.push({codigo:col, concepto:label, porcentaje: formatPct(pct), importe:n}); };
     const addN = (col, label, amount) => { const n=num(amount); if(positive(n)) noRem.push({codigo:col, concepto:label, importe:n}); };
-    const brutoRow = num(rowCell(ws,'AP',r-1)) || 0;
-    const bruto = brutoRow > 0 ? brutoRow : num(rowCell(ws,'AP',r));
-    if(bruto > 0) addD('E','Jubilación', bruto * 0.11, '11%');
-    if(bruto > 0) addD('G','Ley 19032 / INSSJP', bruto * 0.03, '3%');
-    if(bruto > 0) addD('I','Obra social media jornada', bruto * 0.03, '3%');
+    const brutoRow = brutoCached || num(rowCell(ws,'AP',r-1)) || num(rowCell(ws,'AP',r)) || 0;
+    const bruto = brutoRow > 0 ? brutoRow : 0;
+    if(bruto > 0) addD('E','Jubilación', Math.round(bruto * 0.11), '11%');
+    if(bruto > 0) addD('G','Ley 19032 / INSSJP', Math.round(bruto * 0.03), '3%');
+    if(bruto > 0) addD('I','Obra social media jornada', Math.round(bruto * 0.03), '3%');
     addD('M','Retención 2',rowCell(ws,'M',r),'L'); addD('O','Retención 3',rowCell(ws,'O',r),'N');
     addD('Q','Retención 4',rowCell(ws,'Q',r),'P'); addD('S','Seguro / FAECYS',rowCell(ws,'S',r),'R'); addD('U','Retención 5',rowCell(ws,'U',r),'T'); addD('W','Retención 6',rowCell(ws,'W',r),'V'); addD('Y','Retención 7',rowCell(ws,'Y',r),'X');
     addD('Z','Anticipos',rowCell(ws,'Z',r)); addD('AA','Anticipo SAC',rowCell(ws,'AA',r)); addD('AB','Obra Social Acuerdos',rowCell(ws,'AB',r));
